@@ -1,5 +1,5 @@
 # Toastrack-ZXUno
-ZX Spectrum keyuboard converter to USB and PS/2
+ZX Spectrum keyboard converter to USB and PS/2
 
 * Original base code by Quest
 * Initial development and first keyboard shortcutsby Neuro (@neurorulez)
