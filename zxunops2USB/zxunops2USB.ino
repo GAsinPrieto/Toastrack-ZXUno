@@ -15,15 +15,8 @@ Conversor de teclado ZX Spectrum a PS/2
 #include <inttypes.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
-#include "Keyboard.h"
 #include "config.h"
 #include "keymaps.h"
-
-/*#if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega16U4__)
-  #include "userMAXconfig.h"
-#else //__AVR_ATmega328P__
-  #include "userconfig.h"
-#endif*/
 
 #define HI 1
 #define LO 0
@@ -40,7 +33,7 @@ Conversor de teclado ZX Spectrum a PS/2
 // CapsShift            -> 0b00001000 = 0x08 (Este flag solo se tiene en cuenta en modos distintos al de ZX)
 // SymbolShift          -> 0b00010000 = 0x10 (Este flag solo se tiene en cuenta en modos distintos al de ZX)
 
-KeyReport report;
+
 
 uint8_t matriz[ROWS][COLS];
 uint8_t opqa_cursors = 0;
@@ -167,198 +160,248 @@ unsigned char SYMBOL_SHIFT = KEY_RCTRL; //Symbol Shift (NO necesita E0)
 
 
 
+#if defined(__AVR_ATmega328P__)
 
+  void sendUSB(uint8_t k){
+    // Dumb function to allow PS2 code to work properly on ATmega 328p
+    return;
+  }
+  
+  void sendStopUSB(uint8_t k){
+    // Dumb function to allow PS2 code to work properly on ATmega 328p
+    return;
+  }
+  
+#elif defined(__AVR_ATmega32U4__)
 
+  #include "Keyboard.h"
+  KeyReport report;
 
-uint8_t K[255], KE[255];
+  uint8_t K[255], KE[255];
+  
+  void setupKeymaps() {
+    K[KEY_ESCAPE]=KEY_USB_ESCAPE;
+    K[KEY_DELETE]=KEY_USB_DELETE;
+    K[KEY_BACKSP]=KEY_USB_BACKSP;
+    K[KEY_SCRLCK]=KEY_USB_SCRLCK;
+    
+    K[KEY_LCTRL]=KEY_USB_LCTRL;
+    K[KEY_LALT]=KEY_USB_LALT;
+    
+                          //Especiales, requieren E0                          //Especiales, requieren E0
+    K[KEY_RIGHT]=KEY_USB_RIGHT;
+    K[KEY_LEFT]=KEY_USB_LEFT;
+    K[KEY_DOWN]=KEY_USB_DOWN;
+    K[KEY_UP]=KEY_USB_UP;
+    K[KEY_RCTRL]=KEY_USB_RCTRL;
+    K[KEY_RALT]=KEY_USB_RALT;
+    K[KEY_LWIN]=KEY_USB_LWIN;
+    K[KEY_RWIN]=KEY_USB_RWIN;
+    K[KEY_APPS]=KEY_USB_APPS;
+    K[KEY_PGUP]=KEY_USB_PGUP;
+    K[KEY_PGDW]=KEY_USB_PGDW;
+    K[KEY_HOME]=KEY_USB_HOME;
+    K[KEY_END]=KEY_USB_END;
+    K[KEY_INS]=KEY_USB_INS;
+    K[KEY_DELETE]=KEY_USB_DELETE;
+                          //Fin Especiales                          //Fin Especiales
+    
+    K[KEY_A]=KEY_USB_A;
+    K[KEY_B]=KEY_USB_B;
+    K[KEY_C]=KEY_USB_C;
+    K[KEY_D]=KEY_USB_D;
+    K[KEY_E]=KEY_USB_E;
+    K[KEY_F]=KEY_USB_F;
+    K[KEY_G]=KEY_USB_G;
+    K[KEY_H]=KEY_USB_H;
+    K[KEY_I]=KEY_USB_I;
+    K[KEY_J]=KEY_USB_J;
+    K[KEY_K]=KEY_USB_K;
+    K[KEY_L]=KEY_USB_L;
+    K[KEY_M]=KEY_USB_M;
+    K[KEY_N]=KEY_USB_N;
+    K[KEY_O]=KEY_USB_O;
+    K[KEY_P]=KEY_USB_P;
+    K[KEY_Q]=KEY_USB_Q;
+    K[KEY_R]=KEY_USB_R;
+    K[KEY_S]=KEY_USB_S;
+    K[KEY_T]=KEY_USB_T;
+    K[KEY_U]=KEY_USB_U;
+    K[KEY_V]=KEY_USB_V;
+    K[KEY_W]=KEY_USB_W;
+    K[KEY_X]=KEY_USB_X;
+    K[KEY_Y]=KEY_USB_Y;
+    K[KEY_Z]=KEY_USB_Z;
+    K[KEY_1]=KEY_USB_1;
+    K[KEY_2]=KEY_USB_2;
+    K[KEY_3]=KEY_USB_3;
+    K[KEY_4]=KEY_USB_4;
+    K[KEY_5]=KEY_USB_5;
+    K[KEY_6]=KEY_USB_6;
+    K[KEY_7]=KEY_USB_7;
+    K[KEY_8]=KEY_USB_8;
+    K[KEY_9]=KEY_USB_9;
+    K[KEY_0]=KEY_USB_0;
+    
+    K[KEY_ENTER]=KEY_USB_ENTER;
+    K[KEY_SPACE]=KEY_USB_SPACE;
+    
+    K[KEY_F1]=KEY_USB_F1;
+    K[KEY_F2]=KEY_USB_F2;
+    K[KEY_F3]=KEY_USB_F3;
+    K[KEY_F4]=KEY_USB_F4;
+    K[KEY_F5]=KEY_USB_F5;
+    K[KEY_F6]=KEY_USB_F6;
+    K[KEY_F7]=KEY_USB_F7;
+    K[KEY_F8]=KEY_USB_F8;
+    K[KEY_F9]=KEY_USB_F9;
+    K[KEY_F10]=KEY_USB_F10;
+    K[KEY_F11]=KEY_USB_F11;
+    K[KEY_F12]=KEY_USB_F12;
+    
+    K[KEY_LSHIFT]=KEY_USB_LSHIFT;
+    K[KEY_RSHIFT]=KEY_USB_RSHIFT;
+    
+    K[KEY_CAPS]=KEY_USB_CAPS;
+    
+    K[KEY_TAB]=KEY_USB_TAB;
+    
+    K[KEY_TLD]=KEY_USB_TLD;//Izxda del 1
+    K[KEY_MENOS]=KEY_USB_MENOS;//Drcha del 0
+    K[KEY_IGUAL]=KEY_USB_IGUAL;//Izda de Backspace
+    K[KEY_ACORCHE]=KEY_USB_ACORCHE;//Drcha de la P
+    K[KEY_CCORCHE]=KEY_USB_CCORCHE;//Siguiente a la de la Drcha de la P
+    K[KEY_BKSLASH]=KEY_USB_BKSLASH;//Izda del Enter (Puede estar en la fila de la P o de la L
+    K[KEY_PTOCOMA]=KEY_USB_PTOCOMA;//La Ñ
+    K[KEY_COMILLA]=KEY_USB_COMILLA;//Derecha de la Ñ
+    K[KEY_COMA]=KEY_USB_COMA;//Decha de la M
+    K[KEY_PUNTO]=KEY_USB_PUNTO;//Siguiente del de la Derecha de la M
+    K[KEY_SLASH]=KEY_USB_SLASH;//Izda del Shift Derecho
+    K[KEY_LESS]=KEY_USB_LESS;
+  
+    K[KEY_NUMLCK]=KEY_USB_NUMLCK;
+  }
 
-void setupKeymaps() {
-  K[KEY_ESCAPE]=KEY_USB_ESCAPE;
-  K[KEY_DELETE]=KEY_USB_DELETE;
-  K[KEY_BACKSP]=KEY_USB_BACKSP;
-  K[KEY_SCRLCK]=KEY_USB_SCRLCK;
+  // Copypaste from Keyboard lib
+  void sendReport() {
+    HID().SendReport(2, &report, sizeof(KeyReport));
+  }
   
-  K[KEY_LCTRL]=KEY_USB_LCTRL;
-  K[KEY_LALT]=KEY_USB_LALT;
+  void addToReport(uint8_t k) {
+    uint8_t i;
+    if (k >= 224) {
+      report.modifiers |= 1 << (k - 224);
+    } else if (report.keys[0] != k && report.keys[1] != k &&
+               report.keys[2] != k && report.keys[3] != k &&
+               report.keys[4] != k && report.keys[5] != k) {
+      for (i = 0; i < 6; ++i) {
+        if (report.keys[i] == 0) {
+          report.keys[i] = k;
+          break;
+        }
+      }
+    }
+  }
   
-                        //Especiales, requieren E0                          //Especiales, requieren E0
-  K[KEY_RIGHT]=KEY_USB_RIGHT;
-  K[KEY_LEFT]=KEY_USB_LEFT;
-  K[KEY_DOWN]=KEY_USB_DOWN;
-  K[KEY_UP]=KEY_USB_UP;
-  K[KEY_RCTRL]=KEY_USB_RCTRL;
-  K[KEY_RALT]=KEY_USB_RALT;
-  K[KEY_LWIN]=KEY_USB_LWIN;
-  K[KEY_RWIN]=KEY_USB_RWIN;
-  K[KEY_APPS]=KEY_USB_APPS;
-  K[KEY_PGUP]=KEY_USB_PGUP;
-  K[KEY_PGDW]=KEY_USB_PGDW;
-  K[KEY_HOME]=KEY_USB_HOME;
-  K[KEY_END]=KEY_USB_END;
-  K[KEY_INS]=KEY_USB_INS;
-  K[KEY_DELETE]=KEY_USB_DELETE;
-                        //Fin Especiales                          //Fin Especiales
+  void removeFromReport(uint8_t k) {
+    uint8_t i;
+    if (k >= 224) {
+      report.modifiers &= ~(1 << (k - 224));
+    } else {
+      for (i = 0; i < 6; ++i) {
+        if (report.keys[i] == k) {
+          report.keys[i] = 0;
+          break;
+        }
+      }
+    }
+  }
+  ////
   
-  K[KEY_A]=KEY_USB_A;
-  K[KEY_B]=KEY_USB_B;
-  K[KEY_C]=KEY_USB_C;
-  K[KEY_D]=KEY_USB_D;
-  K[KEY_E]=KEY_USB_E;
-  K[KEY_F]=KEY_USB_F;
-  K[KEY_G]=KEY_USB_G;
-  K[KEY_H]=KEY_USB_H;
-  K[KEY_I]=KEY_USB_I;
-  K[KEY_J]=KEY_USB_J;
-  K[KEY_K]=KEY_USB_K;
-  K[KEY_L]=KEY_USB_L;
-  K[KEY_M]=KEY_USB_M;
-  K[KEY_N]=KEY_USB_N;
-  K[KEY_O]=KEY_USB_O;
-  K[KEY_P]=KEY_USB_P;
-  K[KEY_Q]=KEY_USB_Q;
-  K[KEY_R]=KEY_USB_R;
-  K[KEY_S]=KEY_USB_S;
-  K[KEY_T]=KEY_USB_T;
-  K[KEY_U]=KEY_USB_U;
-  K[KEY_V]=KEY_USB_V;
-  K[KEY_W]=KEY_USB_W;
-  K[KEY_X]=KEY_USB_X;
-  K[KEY_Y]=KEY_USB_Y;
-  K[KEY_Z]=KEY_USB_Z;
-  K[KEY_1]=KEY_USB_1;
-  K[KEY_2]=KEY_USB_2;
-  K[KEY_3]=KEY_USB_3;
-  K[KEY_4]=KEY_USB_4;
-  K[KEY_5]=KEY_USB_5;
-  K[KEY_6]=KEY_USB_6;
-  K[KEY_7]=KEY_USB_7;
-  K[KEY_8]=KEY_USB_8;
-  K[KEY_9]=KEY_USB_9;
-  K[KEY_0]=KEY_USB_0;
+  void sendUSB(uint8_t k){
+    uint8_t key=K[k];
+    addToReport(key);
+    sendReport();
+  }
   
-  K[KEY_ENTER]=KEY_USB_ENTER;
-  K[KEY_SPACE]=KEY_USB_SPACE;
+  void sendStopUSB(uint8_t k){
+    uint8_t key=K[k];
+    removeFromReport(key);
+    sendReport();
+  }
   
-  K[KEY_F1]=KEY_USB_F1;
-  K[KEY_F2]=KEY_USB_F2;
-  K[KEY_F3]=KEY_USB_F3;
-  K[KEY_F4]=KEY_USB_F4;
-  K[KEY_F5]=KEY_USB_F5;
-  K[KEY_F6]=KEY_USB_F6;
-  K[KEY_F7]=KEY_USB_F7;
-  K[KEY_F8]=KEY_USB_F8;
-  K[KEY_F9]=KEY_USB_F9;
-  K[KEY_F10]=KEY_USB_F10;
-  K[KEY_F11]=KEY_USB_F11;
-  K[KEY_F12]=KEY_USB_F12;
-  
-  K[KEY_LSHIFT]=KEY_USB_LSHIFT;
-  K[KEY_RSHIFT]=KEY_USB_RSHIFT;
-  
-  K[KEY_CAPS]=KEY_USB_CAPS;
-  
-  K[KEY_TAB]=KEY_USB_TAB;
-  
-  K[KEY_TLD]=KEY_USB_TLD;//Izxda del 1
-  K[KEY_MENOS]=KEY_USB_MENOS;//Drcha del 0
-  K[KEY_IGUAL]=KEY_USB_IGUAL;//Izda de Backspace
-  K[KEY_ACORCHE]=KEY_USB_ACORCHE;//Drcha de la P
-  K[KEY_CCORCHE]=KEY_USB_CCORCHE;//Siguiente a la de la Drcha de la P
-  K[KEY_BKSLASH]=KEY_USB_BKSLASH;//Izda del Enter (Puede estar en la fila de la P o de la L
-  K[KEY_PTOCOMA]=KEY_USB_PTOCOMA;//La Ñ
-  K[KEY_COMILLA]=KEY_USB_COMILLA;//Derecha de la Ñ
-  K[KEY_COMA]=KEY_USB_COMA;//Decha de la M
-  K[KEY_PUNTO]=KEY_USB_PUNTO;//Siguiente del de la Derecha de la M
-  K[KEY_SLASH]=KEY_USB_SLASH;//Izda del Shift Derecho
-  K[KEY_LESS]=KEY_USB_LESS;
-
-  K[KEY_NUMLCK]=KEY_USB_NUMLCK;
-  
-}
+#endif
 
 void pinSet(uint8_t pin, uint8_t bcd, uint8_t stat) //stat 1 = in, stat 0 = out
 {
-  switch (bcd) {
-  case PB:  if (stat) DDRB &= ~_BV(pin); else DDRB |= _BV(pin); break;
-  case PC:  if (stat) DDRC &= ~_BV(pin); else DDRC |= _BV(pin); break;
-  case PD:  if (stat) DDRD &= ~_BV(pin); else DDRD |= _BV(pin); break;
-
-  case PE:  if (stat) DDRE &= ~_BV(pin); else DDRE |= _BV(pin); break; // Pro Micro
-  case PF:  if (stat) DDRF &= ~_BV(pin); else DDRF |= _BV(pin); break; // Pro Micro
-  }
+  #if defined(__AVR_ATmega328P__)
+  
+    switch (bcd) {
+      case PB:  if (stat) DDRB &= ~_BV(pin); else DDRB |= _BV(pin); break;
+      case PC:  if (stat) DDRC &= ~_BV(pin); else DDRC |= _BV(pin); break;
+      case PD:  if (stat) DDRD &= ~_BV(pin); else DDRD |= _BV(pin); break;
+    }
+    
+  #elif defined(__AVR_ATmega32U4__)
+  
+    switch (bcd) {
+      case PB:  if (stat) DDRB &= ~_BV(pin); else DDRB |= _BV(pin); break;
+      case PC:  if (stat) DDRC &= ~_BV(pin); else DDRC |= _BV(pin); break;
+      case PD:  if (stat) DDRD &= ~_BV(pin); else DDRD |= _BV(pin); break;
+    
+      case PE:  if (stat) DDRE &= ~_BV(pin); else DDRE |= _BV(pin); break; // Pro Micro
+      case PF:  if (stat) DDRF &= ~_BV(pin); else DDRF |= _BV(pin); break; // Pro Micro
+    }
+    
+  #endif
 }
 
 uint8_t pinStat(uint8_t pin, uint8_t bcd)
 {
-  switch (bcd) {
-  case PB:  if (!(PINB & (1 << pin))) return 1; else return 0; break;
-  case PC:  if (!(PINC & (1 << pin))) return 1; else return 0; break;
-  case PD:  if (!(PIND & (1 << pin))) return 1; else return 0; break;
-
-  case PE:  if (!(PINE & (1 << pin))) return 1; else return 0; break; // Pro Micro
-  case PF:  if (!(PINF & (1 << pin))) return 1; else return 0; break; // Pro Micro
-  }
-  return 0;
+  #if defined(__AVR_ATmega328P__)
+  
+    switch (bcd) {
+      case PB:  if (!(PINB & (1 << pin))) return 1; else return 0; break;
+      case PC:  if (!(PINC & (1 << pin))) return 1; else return 0; break;
+      case PD:  if (!(PIND & (1 << pin))) return 1; else return 0; break;
+    }
+    return 0;
+  
+  #elif defined(__AVR_ATmega32U4__)
+  
+    switch (bcd) {
+      case PB:  if (!(PINB & (1 << pin))) return 1; else return 0; break;
+      case PC:  if (!(PINC & (1 << pin))) return 1; else return 0; break;
+      case PD:  if (!(PIND & (1 << pin))) return 1; else return 0; break;
+      case PE:  if (!(PINE & (1 << pin))) return 1; else return 0; break; // Pro Micro
+      case PF:  if (!(PINF & (1 << pin))) return 1; else return 0; break; // Pro Micro
+    }
+    return 0;
+    
+  #endif
 }
 
 void pinPut(uint8_t pin, uint8_t bcd, uint8_t stat) //stat 1 = HI, stat 0 = LO
 {
-  switch (bcd) {
-  case PB:  if (!stat) PORTB &= ~_BV(pin); else PORTB |= _BV(pin); break;
-  case PC:  if (!stat) PORTC &= ~_BV(pin); else PORTC |= _BV(pin); break;
-  case PD:  if (!stat) PORTD &= ~_BV(pin); else PORTD |= _BV(pin); break;
-
-  case PE:  if (!stat) PORTE &= ~_BV(pin); else PORTE |= _BV(pin); break; // Pro Micro
-  case PF:  if (!stat) PORTF &= ~_BV(pin); else PORTF |= _BV(pin); break; // Pro Micro
-  }
-}
-
-// Copypaste from Keyboard lib
-void sendReport() {
-  HID().SendReport(2, &report, sizeof(KeyReport));
-}
-
-void addToReport(uint8_t k) {
-  uint8_t i;
-  if (k >= 224) {
-    report.modifiers |= 1 << (k - 224);
-  } else if (report.keys[0] != k && report.keys[1] != k &&
-             report.keys[2] != k && report.keys[3] != k &&
-             report.keys[4] != k && report.keys[5] != k) {
-    for (i = 0; i < 6; ++i) {
-      if (report.keys[i] == 0) {
-        report.keys[i] = k;
-        break;
-      }
+  #if defined(__AVR_ATmega328P__)
+  
+    switch (bcd) {
+      case PB:  if (!stat) PORTB &= ~_BV(pin); else PORTB |= _BV(pin); break;
+      case PC:  if (!stat) PORTC &= ~_BV(pin); else PORTC |= _BV(pin); break;
+      case PD:  if (!stat) PORTD &= ~_BV(pin); else PORTD |= _BV(pin); break;
     }
-  }
-}
-
-void removeFromReport(uint8_t k) {
-  uint8_t i;
-  if (k >= 224) {
-    report.modifiers &= ~(1 << (k - 224));
-  } else {
-    for (i = 0; i < 6; ++i) {
-      if (report.keys[i] == k) {
-        report.keys[i] = 0;
-        break;
-      }
+  
+  #elif defined(__AVR_ATmega32U4__)
+  
+    switch (bcd) {
+      case PB:  if (!stat) PORTB &= ~_BV(pin); else PORTB |= _BV(pin); break;
+      case PC:  if (!stat) PORTC &= ~_BV(pin); else PORTC |= _BV(pin); break;
+      case PD:  if (!stat) PORTD &= ~_BV(pin); else PORTD |= _BV(pin); break;
+      case PE:  if (!stat) PORTE &= ~_BV(pin); else PORTE |= _BV(pin); break; // Pro Micro
+      case PF:  if (!stat) PORTF &= ~_BV(pin); else PORTF |= _BV(pin); break; // Pro Micro
     }
-  }
-}
-////
-
-void sendUSB(uint8_t k){
-  uint8_t key=K[k];
-  addToReport(key);
-  sendReport();
-}
-
-void sendStopUSB(uint8_t k){
-  uint8_t key=K[k];
-  removeFromReport(key);
-  sendReport();
+    
+  #endif
 }
 
 void ps2Mode(uint8_t pin, uint8_t mode)
@@ -1203,6 +1246,7 @@ void matrixScan()
             //if (mapZX[r][c] == KEY_B) { matriz[7][3] |= 0x01; matriz[r][c] = 0; espera++; continue; }
 
             //pulsafn(unsigned char row, unsigned char col, unsigned char key, unsigned char key_E0, unsigned char shift, unsigned char ctrl, unsigned char alt, unsigned char useg)
+            if ((matriz[5][1] & 0x01) && (matriz[6][4] & 0x01) && (matriz[4][0] & 0x01)) { pulsafn(r, c, KEY_BACKSP, 0, 0, 1, 1, 5); _delay_ms(1000); pulsafn(r, c, KEY_Z, 0, 0, 1, 0, 5); }
             if (mapZX[r][c] == KEY_B) pulsafn(r, c, KEY_BACKSP, 0, 0, 1, 1, 5);     //ZXUNO Hard Reset (Control+Alt+Backsp)
             if (mapZX[r][c] == KEY_N) pulsafn(r, c, KEY_DELETE, 1, 0, 1, 1, 5);     //ZXUNO Soft Reset (Control+Alt+Supr)
             if (mapZX[r][c] == KEY_G) pulsafn(r, c, KEY_SCRLCK, 0, 0, 0, 0, 5);     //ZXUNO RGB/VGA Swich (Bloq Despl)
@@ -1290,6 +1334,7 @@ void matrixScan()
             //if (mapFUS[r][c] == KEY_B) { matriz[7][3] |= 0x01; matriz[r][c] = 0; espera++; continue; }
 
             //pulsafn(unsigned char row, unsigned char col, unsigned char key, unsigned char key_E0, unsigned char shift, unsigned char ctrl, unsigned char alt, unsigned char useg)
+            if ((matriz[5][1] & 0x01) && (matriz[6][4] & 0x01) && (matriz[4][0] & 0x01)) { pulsafn(r, c, KEY_BACKSP, 0, 0, 1, 1, 5); _delay_ms(1000); pulsafn(r, c, KEY_Z, 0, 0, 1, 0, 5); }
             if (mapFUS[r][c] == KEY_D) { pulsafn(r, c, KEY_BACKSP, 0, 0, 1, 1, 5); _delay_ms(1000); pulsafn(r, c, KEY_Z, 0, 0, 1, 0, 5); }
             if (mapFUS[r][c] == KEY_B) pulsafn(r, c, KEY_BACKSP, 0, 0, 1, 1, 5);     //ZXUNO Hard Reset (Control+Alt+Backsp)
             if (mapFUS[r][c] == KEY_N) pulsafn(r, c, KEY_DELETE, 1, 0, 1, 1, 5);     //ZXUNO Soft Reset (Control+Alt+Supr)
@@ -1486,7 +1531,11 @@ void matrixScan()
 
 void setup()
 {
-  DDRD=0; // Help to disable UART to use pins PD3 and PD2
+  #if defined(__AVR_ATmega32U4__)
+    DDRD=0; // Help to disable UART to use pins PD3 and PD2
+    Keyboard.begin();
+    setupKeymaps();
+  #endif
   CPU_PRESCALE(CPU_16MHz);
   ps2Init();
   matrixInit();
@@ -1507,15 +1556,21 @@ void setup()
     eeprom_write_byte((uint8_t*)6, (uint8_t)1); // Guardamos ZXFULLCOMBOS por defecto
   }
   //modo = pc;
-
-  Keyboard.begin();
-  setupKeymaps();
 }
 
 void loop()
 {
+  #if defined(__AVR_ATmega328P__)
+  
+    if (ps2Stat() && modo == MAXKB && (kbescucha || timeout_escucha > 0)) // Lineas CLK y/o DATA a 0 y escucha activa
+    
+  #elif defined(__AVR_ATmega32U4__)
+  
+    if ((ps2Stat() && modo == MAXKB && (kbescucha || timeout_escucha > 0)) && !(UDADDR & _BV(ADDEN))) // Lineas CLK y/o DATA a 0 y escucha activa
+    
+  #endif
 
-  if ((ps2Stat() && modo == MAXKB && (kbescucha || timeout_escucha > 0))&&!(UDADDR & _BV(ADDEN))) // Lineas CLK y/o DATA a 0 y escucha activa
+  
   {                                                                     // Solo hay escucha activa en modo PC, hasta su inicializacion.
                                                                         // Una vez completada la inicializacion de teclado, no es necesario mantener activa la escucha de comandos excepto si se hace eco
                                                                         //GAP: El ultimo termino de la condicion es para detectar si estamos conectados por USB o por PS/2
