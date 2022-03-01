@@ -10,7 +10,7 @@
 //KEY_ENTER: NADA KEY_L: =        KEY_K: +        KEY_J: -        KEY_H: (flecha)
 //KEY_SPACE: NADA NADA            KEY_M: .        KEY_N: ,        KEY_B: *
 
-const uint8_t version[8] = { 0,3,0,2,2,0,2,2 }; //DDMMAAAA
+const uint8_t version[8] = { 2,8,0,2,2,0,2,2 }; //DDMMAAAA
 
 const uint8_t rama[1] = { 3 }; // Rama del firmware (1: Original, 2: Alternativa, 3:Nueva con USB)
 
